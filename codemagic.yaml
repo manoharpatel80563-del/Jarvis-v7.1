@@ -1,0 +1,29 @@
+workflows:
+  jarvis-v7-1-android:
+    name: JARVIS V7.1 APK
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+
+    scripts:
+      - name: Extract JARVIS V7.1 source
+        script: |
+          rm -rf "$CM_BUILD_DIR/jarvis-source"
+          mkdir -p "$CM_BUILD_DIR/jarvis-source"
+          unzip -q "$CM_BUILD_DIR/JARVIS-V7.1-Updated-Source.zip" -d "$CM_BUILD_DIR/jarvis-source"
+
+      - name: Set Android SDK location
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/jarvis-source/android/local.properties"
+
+      - name: Make Gradle executable
+        script: |
+          cd "$CM_BUILD_DIR/jarvis-source/android"
+          chmod +x ./gradlew
+
+      - name: Build JARVIS V7.1 APK
+        script: |
+          cd "$CM_BUILD_DIR/jarvis-source/android"
+          ./gradlew assembleDebug --no-daemon
+
+    artifacts:
+      - jarvis-source/android/app/build/outputs/apk/debug/*.apk
